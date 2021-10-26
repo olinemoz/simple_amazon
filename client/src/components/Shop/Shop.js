@@ -1,26 +1,33 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import Cart from '../Cart/Cart';
 import Product from '../Product/Product';
-import { addToDb } from '../../utilities/fakedb';
+import {addToDb} from '../../utilities/fakedb';
 import './Shop.css';
 import useCart from '../../hooks/useCart';
-import { Link } from 'react-router-dom';
+import {Link} from 'react-router-dom';
 
 const Shop = () => {
     const [products, setProducts] = useState([]);
     const [cart, setCart] = useCart(products);
+    const [pageCount, setPageCount] = useState(0)
+    const [page, setPage] = useState(0)
+    console.log("Page",page)
+    const size = 10
+    // console.log("Number,",page)
     // products to be rendered on the UI
     const [displayProducts, setDisplayProducts] = useState([]);
 
     useEffect(() => {
-        fetch('http://localhost:5000/products')
+        fetch(`http://localhost:5000/products?page=${page}&&size=${size}`)
             .then(res => res.json())
             .then(data => {
-                setProducts(data);
-                setDisplayProducts(data);
+                setProducts(data.products);
+                setDisplayProducts(data.products);
+                const count = data.count;
+                const pageCount = Math.ceil(count / size);
+                setPageCount(pageCount)
             });
-    }, []);
-
+    }, [page]);
 
 
     const handleAddToCart = (product) => {
@@ -30,8 +37,7 @@ const Shop = () => {
             const rest = cart.filter(pd => pd.key !== product.key);
             exists.quantity = exists.quantity + 1;
             newCart = [...rest, product];
-        }
-        else {
+        } else {
             product.quantity = 1;
             newCart = [...cart, product];
         }
@@ -43,9 +49,7 @@ const Shop = () => {
 
     const handleSearch = event => {
         const searchText = event.target.value;
-
         const matchedProducts = products.filter(product => product.name.toLowerCase().includes(searchText.toLowerCase()));
-
         setDisplayProducts(matchedProducts);
     }
 
@@ -55,7 +59,7 @@ const Shop = () => {
                 <input
                     type="text"
                     onChange={handleSearch}
-                    placeholder="Search Product" />
+                    placeholder="Search Product"/>
             </div>
             <div className="shop-container">
                 <div className="product-container">
@@ -67,6 +71,19 @@ const Shop = () => {
                         >
                         </Product>)
                     }
+                    <div className="pagination">
+                        {
+                            [...Array(pageCount).keys()]
+                                .map(number => <button
+                                        className={number === page ? 'selected' : ''}
+                                        key={number}
+                                        onClick={() => setPage(number)}
+                                    >
+                                        {number + 1}
+                                    </button>
+                                )
+                        }
+                    </div>
                 </div>
                 <div className="cart-container">
                     <Cart cart={cart}>
