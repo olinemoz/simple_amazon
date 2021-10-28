@@ -8,10 +8,10 @@ import {Link} from 'react-router-dom';
 
 const Shop = () => {
     const [products, setProducts] = useState([]);
-    const [cart, setCart] = useCart(products);
+    const [cart, setCart] = useCart();
     const [pageCount, setPageCount] = useState(0)
     const [page, setPage] = useState(0)
-    console.log("Page",page)
+    // console.log("Page",page)
     const size = 10
     // console.log("Number,",page)
     // products to be rendered on the UI
